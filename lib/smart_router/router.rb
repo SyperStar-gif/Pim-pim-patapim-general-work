@@ -45,6 +45,11 @@ module SmartRouter
       decisions
     end
 
+    def route_single(op_or_hash)
+      op = op_or_hash.is_a?(Operation) ? op_or_hash : Operation.new(op_or_hash)
+      route_single_operation(op)
+    end
+
     def route_single_operation(operation)
       attempts = []
       external_providers = @providers.values.reject(&:is_fallback)

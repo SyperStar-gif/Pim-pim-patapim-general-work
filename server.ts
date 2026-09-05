@@ -102,9 +102,9 @@ async function startServer() {
     });
   });
 
-  // API 4b: Run Ruby test suites (40 comprehensive + 20 numeric precision)
+  // API 4b: Run Ruby test suites (all 8 suites: comprehensive, precision, scenarios, advanced, resilience, self-healing, risk, fees)
   app.post('/api/run-ruby-tests', (req, res) => {
-    const cmd = `ruby test/comprehensive_test_suite.rb && ruby test/test_numeric_precision.rb`;
+    const cmd = `ruby test/master_test_runner.rb`;
 
     exec(cmd, { cwd: __dirname }, (error, stdout, stderr) => {
       res.json({

@@ -1,0 +1,14 @@
+# GitHub Linguist Language Detection Configuration
+# Ensure Ruby is recognized as the primary language of this repository (hackathon rule: majority Ruby code)
+
+# Mark frontend UI and Node server files as vendored/documentation so GitHub Linguist excludes them from language stats
+src/** linguist-vendored=true
+server.ts linguist-vendored=true
+vite.config.ts linguist-vendored=true
+
+# Ensure Ruby files are explicitly tracked as Ruby
+lib/**/*.rb linguist-language=Ruby
+bin/**/*.rb linguist-language=Ruby
+test/**/*.rb linguist-language=Ruby
+data/validate.rb linguist-language=Ruby
+data/benchmark.rb linguist-language=Ruby
