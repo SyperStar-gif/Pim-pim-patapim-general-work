@@ -1,0 +1,72 @@
+[
+  {
+    "operation_id": "op_101",
+    "amount": 25000,
+    "bank": "sber",
+    "client_id": "usr_401",
+    "created_at": "2026-07-30T10:00:00Z"
+  },
+  {
+    "operation_id": "op_102",
+    "amount": 45000,
+    "bank": "raiffeisen",
+    "client_id": "usr_402",
+    "created_at": "2026-07-30T10:01:15Z"
+  },
+  {
+    "operation_id": "op_103",
+    "amount": 150000,
+    "bank": "sber",
+    "client_id": "usr_403",
+    "created_at": "2026-07-30T10:02:30Z"
+  },
+  {
+    "operation_id": "op_104",
+    "amount": 8000,
+    "bank": "gazprombank",
+    "client_id": "usr_404",
+    "created_at": "2026-07-30T10:03:45Z"
+  },
+  {
+    "operation_id": "op_105",
+    "amount": 75000,
+    "bank": "tbank",
+    "client_id": "usr_405",
+    "created_at": "2026-07-30T10:05:00Z"
+  },
+  {
+    "operation_id": "op_106",
+    "amount": 1200,
+    "bank": "vtb",
+    "client_id": "usr_406",
+    "created_at": "2026-07-30T10:06:20Z"
+  },
+  {
+    "operation_id": "op_107",
+    "amount": 210000,
+    "bank": "alfa",
+    "client_id": "usr_407",
+    "created_at": "2026-07-30T10:07:40Z"
+  },
+  {
+    "operation_id": "op_108",
+    "amount": 35000,
+    "bank": "sber",
+    "client_id": "usr_408",
+    "created_at": "2026-07-30T10:09:00Z"
+  },
+  {
+    "operation_id": "op_109",
+    "amount": 95000,
+    "bank": "tbank",
+    "client_id": "usr_409",
+    "created_at": "2026-07-30T10:10:15Z"
+  },
+  {
+    "operation_id": "op_110",
+    "amount": 450000,
+    "bank": "ozon",
+    "client_id": "usr_410",
+    "created_at": "2026-07-30T10:11:30Z"
+  }
+]

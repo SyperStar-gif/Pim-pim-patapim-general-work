@@ -1,0 +1,59 @@
+{
+  "period": "2026-09-04",
+  "total_operations": 10,
+  "distribution": {
+    "vipay": {
+      "count": 3,
+      "share_pct": 30.0,
+      "target_pct": 40.0
+    },
+    "payflow": {
+      "count": 3,
+      "share_pct": 30.0,
+      "target_pct": 35.0
+    },
+    "quickpay": {
+      "count": 3,
+      "share_pct": 30.0,
+      "target_pct": 25.0
+    },
+    "spacepayments": {
+      "count": 1,
+      "share_pct": 10.0,
+      "target_pct": 0.0
+    }
+  },
+  "skip_reasons": {
+    "bank_excluded": 2,
+    "simulated_rejected": 1,
+    "amount_exceeds_limit": 9,
+    "amount_below_min": 2
+  },
+  "projected_daily_utilization": {
+    "vipay": {
+      "used": 3386200,
+      "limit": 5000000,
+      "utilization_pct": 67.72
+    },
+    "payflow": {
+      "used": 2018000,
+      "limit": 3000000,
+      "utilization_pct": 67.27
+    },
+    "quickpay": {
+      "used": 4505000,
+      "limit": 10000000,
+      "utilization_pct": 45.05
+    },
+    "spacepayments": {
+      "used": 700000,
+      "limit": 100000000,
+      "utilization_pct": 0.7
+    }
+  },
+  "recommendations": [
+    "vipay достиг 67.72% дневного лимита — отслеживать интенсивность трафика",
+    "payflow достиг 67.27% дневного лимита — отслеживать интенсивность трафика",
+    "Высокая доля отклонений amount_exceeds_limit (9) — рекомендуется подключить провайдеров с чеками 100k+ или повысить лимит vipay"
+  ]
+}

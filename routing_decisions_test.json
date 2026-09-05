@@ -1,0 +1,223 @@
+[
+  {
+    "operation_id": "op_101",
+    "selected_provider": "payflow",
+    "attempts": [
+      {
+        "provider": "payflow",
+        "decision": "selected",
+        "reason": "traffic_share_catch_up",
+        "details": "Composite score: 86.18 ({:traffic=>85.0, :volume=>80.0, :conversion=>89.0, :financial=>102.5, :tier=>100.0, :priority=>80.0, :load_headroom=>35.0})"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 20
+  },
+  {
+    "operation_id": "op_102",
+    "selected_provider": "quickpay",
+    "attempts": [
+      {
+        "provider": "payflow",
+        "decision": "skipped",
+        "reason": "bank_excluded",
+        "details": "bank 'raiffeisen' is explicitly excluded"
+      },
+      {
+        "provider": "vipay",
+        "decision": "skipped",
+        "reason": "simulated_rejected",
+        "details": "Bank decline code 05: Do Not Honor"
+      },
+      {
+        "provider": "quickpay",
+        "decision": "selected",
+        "reason": "traffic_share_catch_up",
+        "details": "Composite score: 78.65 ({:traffic=>100.0, :volume=>90.0, :conversion=>96.0, :financial=>40.0, :tier=>40.0, :priority=>70.0, :load_headroom=>59.0})"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 31
+  },
+  {
+    "operation_id": "op_103",
+    "selected_provider": "quickpay",
+    "attempts": [
+      {
+        "provider": "vipay",
+        "decision": "skipped",
+        "reason": "amount_exceeds_limit",
+        "details": "150000 > limit_amount_max 100000"
+      },
+      {
+        "provider": "payflow",
+        "decision": "skipped",
+        "reason": "amount_exceeds_limit",
+        "details": "150000 > limit_amount_max 50000"
+      },
+      {
+        "provider": "quickpay",
+        "decision": "selected",
+        "reason": "only_eligible_provider"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 26
+  },
+  {
+    "operation_id": "op_104",
+    "selected_provider": "payflow",
+    "attempts": [
+      {
+        "provider": "vipay",
+        "decision": "skipped",
+        "reason": "bank_excluded",
+        "details": "bank 'gazprombank' is explicitly excluded"
+      },
+      {
+        "provider": "quickpay",
+        "decision": "skipped",
+        "reason": "amount_below_min",
+        "details": "8000 < limit_amount_min 10000"
+      },
+      {
+        "provider": "payflow",
+        "decision": "selected",
+        "reason": "only_eligible_provider"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 19
+  },
+  {
+    "operation_id": "op_105",
+    "selected_provider": "vipay",
+    "attempts": [
+      {
+        "provider": "payflow",
+        "decision": "skipped",
+        "reason": "amount_exceeds_limit",
+        "details": "75000 > limit_amount_max 50000"
+      },
+      {
+        "provider": "vipay",
+        "decision": "selected",
+        "reason": "traffic_share_catch_up",
+        "details": "Composite score: 103.59 ({:traffic=>130.0, :volume=>150.0, :conversion=>94.0, :financial=>40.0, :tier=>100.0, :priority=>90.0, :load_headroom=>35.7})"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 23
+  },
+  {
+    "operation_id": "op_106",
+    "selected_provider": "vipay",
+    "attempts": [
+      {
+        "provider": "quickpay",
+        "decision": "skipped",
+        "reason": "amount_below_min",
+        "details": "1200 < limit_amount_min 10000"
+      },
+      {
+        "provider": "vipay",
+        "decision": "selected",
+        "reason": "traffic_share_catch_up",
+        "details": "Composite score: 80.61 ({:traffic=>90.0, :volume=>100.5, :conversion=>94.0, :financial=>40.0, :tier=>70.0, :priority=>90.0, :load_headroom=>34.2})"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 21
+  },
+  {
+    "operation_id": "op_107",
+    "selected_provider": "quickpay",
+    "attempts": [
+      {
+        "provider": "vipay",
+        "decision": "skipped",
+        "reason": "amount_exceeds_limit",
+        "details": "210000 > limit_amount_max 100000"
+      },
+      {
+        "provider": "payflow",
+        "decision": "skipped",
+        "reason": "amount_exceeds_limit",
+        "details": "210000 > limit_amount_max 50000"
+      },
+      {
+        "provider": "quickpay",
+        "decision": "selected",
+        "reason": "only_eligible_provider"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 31
+  },
+  {
+    "operation_id": "op_108",
+    "selected_provider": "payflow",
+    "attempts": [
+      {
+        "provider": "payflow",
+        "decision": "selected",
+        "reason": "optimal_amount_tier",
+        "details": "Composite score: 83.77 ({:traffic=>62.9, :volume=>97.2, :conversion=>89.0, :financial=>100.9, :tier=>100.0, :priority=>80.0, :load_headroom=>33.9})"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 16
+  },
+  {
+    "operation_id": "op_109",
+    "selected_provider": "vipay",
+    "attempts": [
+      {
+        "provider": "payflow",
+        "decision": "skipped",
+        "reason": "amount_exceeds_limit",
+        "details": "95000 > limit_amount_max 50000"
+      },
+      {
+        "provider": "vipay",
+        "decision": "selected",
+        "reason": "traffic_share_catch_up",
+        "details": "Composite score: 85.46 ({:traffic=>80.0, :volume=>122.3, :conversion=>94.0, :financial=>40.0, :tier=>100.0, :priority=>90.0, :load_headroom=>34.2})"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 23
+  },
+  {
+    "operation_id": "op_110",
+    "selected_provider": "spacepayments",
+    "attempts": [
+      {
+        "provider": "vipay",
+        "decision": "skipped",
+        "reason": "amount_exceeds_limit",
+        "details": "450000 > limit_amount_max 100000"
+      },
+      {
+        "provider": "payflow",
+        "decision": "skipped",
+        "reason": "amount_exceeds_limit",
+        "details": "450000 > limit_amount_max 50000"
+      },
+      {
+        "provider": "quickpay",
+        "decision": "skipped",
+        "reason": "amount_exceeds_limit",
+        "details": "450000 > limit_amount_max 300000"
+      },
+      {
+        "provider": "spacepayments",
+        "decision": "selected",
+        "reason": "fallback_all_providers_ineligible",
+        "details": "Routed to internal fallback gateway spacepayments"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 12
+  }
+]

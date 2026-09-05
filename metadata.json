@@ -1,0 +1,6 @@
+{
+  "name": "Smart Payment Router",
+  "description": "Система умного распределения выплат между платёжными партнерами с поддержкой стратегий, каскада, hard-constraints, soft-goals и аналитики.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
