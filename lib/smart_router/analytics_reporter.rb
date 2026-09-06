@@ -5,7 +5,8 @@ require 'date'
 module SmartRouter
   class AnalyticsReporter
     def self.format_num(val)
-      return 0 if val.nil? || val.zero?
+      return 0 if val.nil? || (val.respond_to?(:zero?) && val.zero?)
+      return nil if val.respond_to?(:infinite?) && val.infinite?
       if val == val.to_i && val.abs >= 1
         val.to_i
       else

@@ -88,9 +88,9 @@ async function startServer() {
     });
   });
 
-  // API 4: Run Ruby validator
+  // API 4: Run Ruby validator (both official validate.rb and validate_10.rb)
   app.post('/api/run-ruby-validator', (req, res) => {
-    const cmd = `ruby data/validate.rb`;
+    const cmd = `ruby data/validate.rb && ruby data/validate_10.rb routing_decisions_test.json`;
 
     exec(cmd, { cwd: __dirname }, (error, stdout, stderr) => {
       res.json({
@@ -154,6 +154,46 @@ async function startServer() {
           decisions,
           report,
           stdout
+        });
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // API 7: Upload and replace whole operations queue (drag-and-drop or file upload for tomorrow's final file)
+  app.post('/api/queue/upload', (req, res) => {
+    try {
+      const { queue, strategy = 'combined', seed = 42 } = req.body;
+      if (!Array.isArray(queue)) {
+        return res.status(400).json({ error: 'Queue must be an array of operations' });
+      }
+
+      const queuePath = path.join(__dirname, 'operations_queue_test.json');
+      fs.writeFileSync(queuePath, JSON.stringify(queue, null, 2));
+      fs.writeFileSync(path.join(__dirname, 'data/operations_queue.json'), JSON.stringify(queue, null, 2));
+
+      // Run Ruby routing immediately on newly uploaded queue
+      const safeStrategy = ['combined', 'traffic_share', 'volume_share', 'cascade_priority', 'amount_tier', 'conversion_boost', 'rate_limit_intensity', 'financial_obligations'].includes(strategy)
+        ? strategy
+        : 'combined';
+
+      const cmd = `ruby bin/route_payments.rb -q ${queuePath} --strategy ${safeStrategy} --seed ${parseInt(seed, 10) || 42}`;
+
+      exec(cmd, { cwd: __dirname }, (err, stdout, stderr) => {
+        const decisions = readJsonSafe(path.join(__dirname, 'routing_decisions_test.json'), []);
+        const report = readJsonSafe(path.join(__dirname, 'routing_report_test.json'), {});
+        const providers = readJsonSafe(path.join(__dirname, 'data/providers.json'), {});
+
+        res.json({
+          success: !err,
+          queueCount: queue.length,
+          strategy: safeStrategy,
+          decisions,
+          report,
+          providers,
+          stdout,
+          stderr
         });
       });
     } catch (e: any) {

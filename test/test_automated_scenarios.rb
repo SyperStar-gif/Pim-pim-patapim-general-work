@@ -88,8 +88,15 @@ module SmartRouter
     def test_cascading_and_provider_dropouts
       # Mutate provider statuses to test cascade depth
       custom_prov = JSON.parse(JSON.dump(@providers_data))
-      custom_prov['vipay']['status'] = 'maintenance'
-      custom_prov['payflow']['status'] = 'disabled'
+      if custom_prov.is_a?(Hash) && custom_prov['providers'].is_a?(Array)
+        v = custom_prov['providers'].find { |p| p['payment_system'] == 'vipay' }
+        pf = custom_prov['providers'].find { |p| p['payment_system'] == 'payflow' }
+        v['status'] = 'maintenance' if v
+        pf['status'] = 'disabled' if pf
+      elsif custom_prov['vipay']
+        custom_prov['vipay']['status'] = 'maintenance'
+        custom_prov['payflow']['status'] = 'disabled'
+      end
 
       router = Router.new(custom_prov, strategy: 'cascade_priority')
 
@@ -97,7 +104,13 @@ module SmartRouter
       res = router.route_single(op)
       assert("Cascaded past disabled vipay and payflow to quickpay", res['selected_provider'] == 'quickpay')
 
-      custom_prov['quickpay']['status'] = 'inactive'
+      if custom_prov.is_a?(Hash) && custom_prov['providers'].is_a?(Array)
+        qp = custom_prov['providers'].find { |p| p['payment_system'] == 'quickpay' }
+        qp['status'] = 'inactive' if qp
+      elsif custom_prov['quickpay']
+        custom_prov['quickpay']['status'] = 'inactive'
+      end
+
       router_fallback = Router.new(custom_prov, strategy: 'cascade_priority')
       res_fallback = router_fallback.route_single(op)
       assert("Cascaded to spacepayments when all external are inactive", res_fallback['selected_provider'] == 'spacepayments')

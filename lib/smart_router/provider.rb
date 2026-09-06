@@ -8,6 +8,7 @@ module SmartRouter
                 :in_progress_count_limit, :in_progress_count,
                 :in_progress_amount_limit, :in_progress_amount,
                 :available_requisites, :banks, :exclude_banks,
+                :normalized_banks, :normalized_exclude_banks,
                 :conversion_24h, :provider_margin_pct, :merchant_margin_pct,
                 :requests_per_minute_limit, :current_requests_this_minute,
                 :daily_turnover_min, :daily_turnover_max,
@@ -16,8 +17,9 @@ module SmartRouter
     attr_accessor :processed_count, :processed_volume, :successful_count, :failed_count
 
     def initialize(id, data = {})
-      @id = id.to_s
-      @name = data['name'] || id.to_s.capitalize
+      data ||= {}
+      @id = (id || data['payment_system'] || data[:payment_system]).to_s
+      @name = data['name'] || data['payment_system'] || @id.capitalize
       @status = data['status'] || 'active'
       @traffic_percentage = (data['traffic_percentage'] || 0).to_f
       @volume_share_pct = (data['volume_share_pct'] || 0).to_f
@@ -31,8 +33,23 @@ module SmartRouter
       @in_progress_amount_limit = (data['in_progress_amount_limit'] || Float::INFINITY).to_f
       @in_progress_amount = (data['in_progress_amount'] || 0).to_f
       @available_requisites = (data['available_requisites'] || 10).to_i
-      @banks = (data['banks'] || []).map(&:to_s).map(&:downcase)
-      @exclude_banks = (data['exclude_banks'] || []).map(&:to_s).map(&:downcase)
+
+      raw_banks = if data['banks'].is_a?(Array)
+                    data['banks'].map(&:to_s).map(&:strip).map(&:downcase)
+                  else
+                    []
+                  end
+      @banks = raw_banks
+      @normalized_banks = raw_banks.map { |b| Operation.normalize_bank(b) }
+
+      raw_exclude = if data['exclude_banks'].is_a?(Array)
+                      data['exclude_banks'].map(&:to_s).map(&:strip).map(&:downcase)
+                    else
+                      []
+                    end
+      @exclude_banks = raw_exclude
+      @normalized_exclude_banks = raw_exclude.map { |b| Operation.normalize_bank(b) }
+
       @conversion_24h = (data['conversion_24h'] || 0.9).to_f
       @provider_margin_pct = (data['provider_margin_pct'] || 2.0).to_f
       @merchant_margin_pct = (data['merchant_margin_pct'] || 2.8).to_f
@@ -42,7 +59,7 @@ module SmartRouter
       @daily_turnover_max = (data['daily_turnover_max'] || @daily_amount_limit).to_f
       @allow_negative_agreement = data['allow_negative_agreement'] == true
       @avg_latency_sec = (data['avg_latency_sec'] || 20).to_i
-      @is_fallback = data['is_fallback'] == true
+      @is_fallback = data['is_fallback'] == true || @id == 'spacepayments'
 
       @processed_count = 0
       @processed_volume = 0.0
@@ -71,11 +88,23 @@ module SmartRouter
       (@daily_approved_amount - @daily_turnover_min) >= -1e-9
     end
 
+    def serves_bank?(bank_name)
+      return false if excludes_bank?(bank_name)
+      supports_bank?(bank_name)
+    end
+
     def supports_bank?(bank_name)
-      b = bank_name.to_s.downcase.strip
-      return false if @exclude_banks.include?(b)
       return true if @banks.empty?
-      @banks.include?(b)
+      b = bank_name.to_s.downcase.strip
+      norm = Operation.normalize_bank(b)
+      @banks.include?(b) || @normalized_banks.include?(norm)
+    end
+
+    def excludes_bank?(bank_name)
+      return false if @exclude_banks.empty?
+      b = bank_name.to_s.downcase.strip
+      norm = Operation.normalize_bank(b)
+      @exclude_banks.include?(b) || @normalized_exclude_banks.include?(norm)
     end
 
     def margin_profitable?

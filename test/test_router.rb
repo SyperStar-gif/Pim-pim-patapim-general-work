@@ -5,7 +5,17 @@ require_relative '../lib/smart_router'
 
 puts "Running SmartRouter Automated Test Suite..."
 
-providers_data = JSON.parse(File.read('data/providers.json'))
+raw_providers = JSON.parse(File.read('data/providers.json'))
+providers_data = if raw_providers.is_a?(Hash) && raw_providers['providers'].is_a?(Array)
+                   raw_providers['providers'].each_with_object({}) do |item, h|
+                     h[item['payment_system'] || item['id']] = item
+                   end
+                 elsif raw_providers.is_a?(Hash)
+                   raw_providers
+                 else
+                   {}
+                 end
+
 tests_passed = 0
 tests_total = 0
 
@@ -21,7 +31,8 @@ end
 
 # Test 1: Hard Constraints - Amount Exceeded
 tests_total += 1
-p = SmartRouter::Provider.new('vipay', providers_data['vipay'])
+vipay_data = (providers_data['vipay'] || {}).merge('exclude_banks' => ['gazprombank'], 'limit_amount_max' => 100_000)
+p = SmartRouter::Provider.new('vipay', vipay_data)
 op_huge = SmartRouter::Operation.new({ 'operation_id' => 't1', 'amount' => 150_000, 'bank' => 'sber' })
 eligible, reason, details = SmartRouter::HardConstraints.check(p, op_huge)
 tests_passed += 1 if assert("Huge amount skips vipay due to limit_amount_max", !eligible && reason == 'amount_exceeds_limit')

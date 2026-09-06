@@ -168,6 +168,32 @@ export function App() {
     }
   };
 
+  // Upload full operations queue from JSON file
+  const handleUploadQueue = async (uploadedQueue: Operation[]) => {
+    setIsRunning(true);
+    try {
+      const res = await fetch('/api/queue/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ queue: uploadedQueue, strategy: currentStrategy, seed: 42 })
+      });
+      const result = await res.json();
+      if (result.success) {
+        setQueue(uploadedQueue);
+        setDecisions(result.decisions || []);
+        setReport(result.report || null);
+        if (result.providers) setProviders(result.providers);
+        setActiveTab('waterfall');
+      } else {
+        alert(`Ошибка загрузки очереди: ${result.error || 'Неизвестная ошибка'}`);
+      }
+    } catch (e: any) {
+      alert(`Сетевая ошибка при загрузке очереди: ${e.message}`);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/70 text-slate-900 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900">
       <Header
@@ -175,6 +201,7 @@ export function App() {
         onValidate={handleValidate}
         onRunTests={handleRunTests}
         onOpenExport={() => setIsExportModalOpen(true)}
+        onUploadQueue={handleUploadQueue}
         isRunning={isRunning}
         isValidating={isValidating}
         isRunningTests={isRunningTests}

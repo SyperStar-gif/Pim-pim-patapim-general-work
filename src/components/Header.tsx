@@ -1,11 +1,13 @@
-import { Play, CheckCircle2, FileJson, RefreshCw, Cpu, FlaskConical } from 'lucide-react';
+import { Play, CheckCircle2, FileJson, RefreshCw, Cpu, FlaskConical, UploadCloud } from 'lucide-react';
 import { formatCurrency } from '../lib/formatters';
+import { useRef, type ChangeEvent } from 'react';
 
 interface HeaderProps {
   onRunRouter: () => void;
   onValidate: () => void;
   onRunTests: () => void;
   onOpenExport: () => void;
+  onUploadQueue?: (queue: any[]) => void;
   isRunning: boolean;
   isValidating: boolean;
   isRunningTests: boolean;
@@ -18,12 +20,35 @@ export function Header({
   onValidate,
   onRunTests,
   onOpenExport,
+  onUploadQueue,
   isRunning,
   isValidating,
   isRunningTests,
   totalOperations,
   totalVolume
 }: HeaderProps) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (Array.isArray(parsed) && onUploadQueue) {
+          onUploadQueue(parsed);
+        } else {
+          alert('Файл должен содержать JSON-массив операций (например [{ operation_id, amount, bank }])');
+        }
+      } catch (err) {
+        alert('Ошибка при чтении JSON-файла');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
   return (
     <header className="border-b border-slate-200 bg-white sticky top-0 z-30 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -54,6 +79,25 @@ export function Header({
               )}
             </span>
           </div>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".json"
+            className="hidden"
+            id="hidden-queue-file-input"
+          />
+
+          <button
+            id="upload-queue-btn"
+            onClick={() => fileInputRef.current?.click()}
+            className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg border border-indigo-200 bg-indigo-50/70 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 transition-colors shadow-xs"
+            title="Загрузить тестовый или финальный operations_queue.json"
+          >
+            <UploadCloud className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Загрузить Queue JSON</span>
+          </button>
 
           <button
             id="run-ruby-router-btn"

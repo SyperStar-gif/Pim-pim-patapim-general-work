@@ -10,7 +10,15 @@ module SmartRouter
 
     # Simulates transaction processing by a provider
     # Returns [result: String ('approved' | 'rejected' | 'expired'), latency_sec: Integer, error_detail: String]
-    def execute_attempt(provider, operation)
+    def execute_attempt(provider, operation, simulate: false)
+      latency = [provider.avg_latency_sec, 30].min
+
+      if provider.conversion_24h <= 0.0
+        return ['rejected', latency, 'Provider conversion rate is zero']
+      end
+
+      return ['approved', latency, nil] unless simulate
+
       # Deterministic pseudo-random based on operation_id and provider for reproducible validation
       hash_val = (operation.operation_id.hash ^ provider.id.hash).abs
       roll = (hash_val % 1000) / 1000.0

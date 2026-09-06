@@ -1,5 +1,5 @@
 {
-  "period": "2026-09-04",
+  "period": "2026-09-06",
   "total_operations": 10,
   "distribution": {
     "vipay": {
@@ -8,8 +8,8 @@
       "target_pct": 40.0
     },
     "payflow": {
-      "count": 3,
-      "share_pct": 30.0,
+      "count": 2,
+      "share_pct": 20.0,
       "target_pct": 35.0
     },
     "quickpay": {
@@ -18,42 +18,41 @@
       "target_pct": 25.0
     },
     "spacepayments": {
-      "count": 1,
-      "share_pct": 10.0,
+      "count": 2,
+      "share_pct": 20.0,
       "target_pct": 0.0
     }
   },
   "skip_reasons": {
-    "bank_excluded": 2,
-    "simulated_rejected": 1,
-    "amount_exceeds_limit": 9,
-    "amount_below_min": 2
+    "bank_not_in_list": 5,
+    "amount_exceeds_limit": 10
   },
   "projected_daily_utilization": {
     "vipay": {
-      "used": 3386200,
+      "used": 3371200,
       "limit": 5000000,
-      "utilization_pct": 67.72
+      "utilization_pct": 67.42
     },
     "payflow": {
-      "used": 2018000,
+      "used": 2960000,
       "limit": 3000000,
-      "utilization_pct": 67.27
+      "utilization_pct": 98.67
     },
     "quickpay": {
-      "used": 4505000,
-      "limit": 10000000,
-      "utilization_pct": 45.05
+      "used": 1303000,
+      "limit": 8000000,
+      "utilization_pct": 16.29
     },
     "spacepayments": {
-      "used": 700000,
-      "limit": 100000000,
-      "utilization_pct": 0.7
+      "used": 660000,
+      "limit": null,
+      "utilization_pct": 0.0
     }
   },
   "recommendations": [
-    "vipay достиг 67.72% дневного лимита — отслеживать интенсивность трафика",
-    "payflow достиг 67.27% дневного лимита — отслеживать интенсивность трафика",
-    "Высокая доля отклонений amount_exceeds_limit (9) — рекомендуется подключить провайдеров с чеками 100k+ или повысить лимит vipay"
+    "vipay достиг 67.42% дневного лимита — отслеживать интенсивность трафика",
+    "payflow близок к дневному лимиту (98.67%) — рекомендуется временно снизить traffic_percentage или запросить расширение дневного лимита",
+    "Высокая доля отклонений amount_exceeds_limit (10) — рекомендуется подключить провайдеров с чеками 100k+ или повысить лимит vipay",
+    "Частые пропуски по банкам — пересмотреть exclude_banks для оптимизации покрытия платежных методов"
   ]
 }

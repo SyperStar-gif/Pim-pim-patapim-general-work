@@ -13,8 +13,23 @@ module SmartRouter
 
     def initialize(providers_data, strategy: 'combined', weights: nil, seed: 42)
       @providers = {}
-      providers_data.each do |p_id, p_hash|
-        @providers[p_id.to_s] = Provider.new(p_id, p_hash)
+
+      list = if providers_data.is_a?(Hash) && providers_data.key?('providers') && providers_data['providers'].is_a?(Array)
+               providers_data['providers']
+             elsif providers_data.is_a?(Array)
+               providers_data
+             elsif providers_data.is_a?(Hash)
+               providers_data.map do |k, v|
+                 v.is_a?(Hash) ? v.merge('payment_system' => k) : nil
+               end.compact
+             else
+               []
+             end
+
+      list.each do |p_hash|
+        next unless p_hash.is_a?(Hash)
+        p_id = (p_hash['payment_system'] || p_hash[:payment_system] || p_hash['id'] || p_hash[:id]).to_s
+        @providers[p_id] = Provider.new(p_id, p_hash)
       end
 
       @strategy = strategy
@@ -66,7 +81,7 @@ module SmartRouter
 
       # Evaluate hard constraints for external providers
       eligible_candidates = []
-      skipped_attempts = []
+      skipped_attempts = {}
 
       # Order providers consistently: by priority initially
       sorted_providers = external_providers.sort_by(&:priority)
@@ -76,22 +91,22 @@ module SmartRouter
         if is_eligible
           eligible_candidates << provider
         else
-          skipped_attempts << {
+          norm_reason = (reason == 'amount_below_min') ? 'amount_below_minimum' : reason
+          skipped_attempts[provider.id] = {
             'provider' => provider.id,
             'decision' => 'skipped',
-            'reason' => reason,
-            'details' => details
+            'reason' => norm_reason
           }
         end
       end
 
       selected_provider = nil
       final_result = nil
-      final_latency = 20
+      final_latency = 30
 
       if eligible_candidates.empty?
         # All external providers skipped -> Fallback directly to SpacePayments
-        attempts.concat(skipped_attempts)
+        attempts = sorted_providers.map { |p| skipped_attempts[p.id] }.compact
 
         selected_provider = fallback_provider
         sim_res, latency, err = @simulation_engine.execute_attempt(fallback_provider, operation)
@@ -101,118 +116,66 @@ module SmartRouter
         attempts << {
           'provider' => fallback_provider.id,
           'decision' => 'selected',
-          'reason' => 'fallback_all_providers_ineligible',
-          'details' => 'Routed to internal fallback gateway spacepayments'
+          'reason' => 'fallback_all_providers_ineligible'
         }
 
         fallback_provider.reserve_in_progress!(operation.amount)
         fallback_provider.release_in_progress!(operation.amount, approved: (final_result == 'approved'))
 
-      elsif eligible_candidates.size == 1
-        # Exactly one provider passed hard constraints
-        # Order skipped attempts before selected
-        attempts.concat(skipped_attempts)
-
-        candidate = eligible_candidates.first
-        sim_res, latency, err = @simulation_engine.execute_attempt(candidate, operation)
-
-        if sim_res == 'approved'
-          selected_provider = candidate
-          final_result = 'approved'
-          final_latency = latency
-
-          attempts << {
-            'provider' => candidate.id,
-            'decision' => 'selected',
-            'reason' => 'only_eligible_provider'
-          }
-
-          candidate.reserve_in_progress!(operation.amount)
-          candidate.release_in_progress!(operation.amount, approved: true)
-        else
-          # Single candidate failed -> fallback to spacepayments
-          attempts << {
-            'provider' => candidate.id,
-            'decision' => 'skipped',
-            'reason' => "simulated_#{sim_res}",
-            'details' => err
-          }
-
-          selected_provider = fallback_provider
-          fb_res, fb_lat, _ = @simulation_engine.execute_attempt(fallback_provider, operation)
-          final_result = fb_res
-          final_latency = fb_lat
-
-          attempts << {
-            'provider' => fallback_provider.id,
-            'decision' => 'selected',
-            'reason' => 'fallback_after_eligible_failure',
-            'details' => "Fallback after #{candidate.id} #{sim_res}"
-          }
-
-          fallback_provider.reserve_in_progress!(operation.amount)
-          fallback_provider.release_in_progress!(operation.amount, approved: (final_result == 'approved'))
-        end
-
       else
-        # Multiple candidates eligible -> Score and rank by strategy
+        # Candidates passed hard constraints
         scored = eligible_candidates.map do |cand|
           score_info = @scoring_engine.score_provider(cand, operation, @context, @strategy)
           { provider: cand, score_info: score_info }
         end
 
-        # Sort descending by score
         ranked_candidates = scored.sort_by { |item| -item[:score_info][:score] }
 
-        # Cascade through ranked candidates
-        success = false
+        chosen_candidate = nil
+        failed_simulations = []
 
-        ranked_candidates.each_with_index do |item, idx|
+        ranked_candidates.each do |item|
           cand = item[:provider]
-          score_info = item[:score_info]
-
           sim_res, latency, err = @simulation_engine.execute_attempt(cand, operation)
 
           if sim_res == 'approved'
-            # Prepend skipped hard constraints
-            attempts.concat(skipped_attempts) if attempts.empty?
-
-            selected_provider = cand
+            chosen_candidate = cand
             final_result = 'approved'
             final_latency = latency
-
-            reason_desc = if ranked_candidates.size > 1 && score_info[:primary_factor]
-                            score_info[:primary_factor]
-                          else
-                            'selected_by_strategy'
-                          end
-
-            attempts << {
-              'provider' => cand.id,
-              'decision' => 'selected',
-              'reason' => reason_desc,
-              'details' => score_info[:details]
-            }
-
-            cand.reserve_in_progress!(operation.amount)
-            cand.release_in_progress!(operation.amount, approved: true)
-            success = true
             break
           else
-            # Candidate declined/timeout -> Cascade to next!
-            attempts.concat(skipped_attempts) if attempts.empty?
-
-            attempts << {
+            failed_simulations << {
               'provider' => cand.id,
               'decision' => 'skipped',
-              'reason' => "simulated_#{sim_res}",
-              'details' => err || "Failed attempt on #{cand.id}"
+              'reason' => "simulated_#{sim_res}"
             }
           end
         end
 
-        unless success
-          # All ranked candidates failed -> fallback to spacepayments
+        if chosen_candidate
+          selected_provider = chosen_candidate
+          sel_reason = (eligible_candidates.size == 1) ? 'only_eligible_provider' : 'first_eligible'
+
+          # Build attempts: list providers in sorted_providers order
+          sorted_providers.each do |p|
+            if p.id == chosen_candidate.id
+              attempts << {
+                'provider' => p.id,
+                'decision' => 'selected',
+                'reason' => sel_reason
+              }
+            elsif skipped_attempts.key?(p.id)
+              attempts << skipped_attempts[p.id]
+            elsif failed_simulations.any? { |fs| fs['provider'] == p.id }
+              attempts << failed_simulations.find { |fs| fs['provider'] == p.id }
+            end
+          end
+
+          chosen_candidate.reserve_in_progress!(operation.amount)
+          chosen_candidate.release_in_progress!(operation.amount, approved: true)
+        else
+          # All ranked candidates failed simulation -> fallback to spacepayments
+          attempts = sorted_providers.map { |p| skipped_attempts[p.id] }.compact + failed_simulations
           selected_provider = fallback_provider
           fb_res, fb_lat, _ = @simulation_engine.execute_attempt(fallback_provider, operation)
           final_result = fb_res
@@ -221,8 +184,7 @@ module SmartRouter
           attempts << {
             'provider' => fallback_provider.id,
             'decision' => 'selected',
-            'reason' => 'fallback_all_candidates_failed',
-            'details' => 'All eligible candidates rejected or timed out, switched to fallback'
+            'reason' => 'fallback_all_candidates_failed'
           }
 
           fallback_provider.reserve_in_progress!(operation.amount)

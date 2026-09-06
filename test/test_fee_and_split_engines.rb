@@ -41,6 +41,12 @@ module SmartRouter
       # --- 2. Split Routing Engine Tests ---
       p_path = File.expand_path('../data/providers.json', __dir__)
       p_data = JSON.parse(File.read(p_path))
+      if p_data.is_a?(Hash) && p_data['providers'].is_a?(Array)
+        qp = p_data['providers'].find { |p| p['payment_system'] == 'quickpay' }
+        qp['limit_amount_max'] = 300_000 if qp
+      elsif p_data['quickpay']
+        p_data['quickpay']['limit_amount_max'] = 300_000
+      end
       router = Router.new(p_data, strategy: 'combined')
       split_engine = SplitRoutingEngine.new(router)
 

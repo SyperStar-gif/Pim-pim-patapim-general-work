@@ -3,6 +3,7 @@
 
 require 'json'
 require 'optparse'
+require_relative '../lib/smart_router'
 
 # Automated Validation Script for Payment Routing Decisions & Report
 # Usage:
@@ -40,7 +41,16 @@ passed_checks = 0
 providers = {}
 if File.exist?(options[:providers])
   begin
-    providers = JSON.parse(File.read(options[:providers]))
+    providers_raw = JSON.parse(File.read(options[:providers]))
+    providers = if providers_raw.is_a?(Hash) && providers_raw['providers'].is_a?(Array)
+                  providers_raw['providers'].each_with_object({}) do |p, h|
+                    h[p['payment_system'] || p['id']] = p
+                  end
+                elsif providers_raw.is_a?(Hash)
+                  providers_raw
+                else
+                  {}
+                end
     puts "  [PASS] Providers JSON loaded successfully (#{providers.keys.size} providers)"
     passed_checks += 1
   rescue => e
@@ -154,11 +164,18 @@ if decisions.is_a?(Array)
       end
 
       # Check bank filters
-      if selected_p['banks'] && !selected_p['banks'].empty? && !selected_p['banks'].map(&:downcase).include?(bank)
-        errors << "#{prefix} Bank '#{bank}' is not supported by #{dec['selected_provider']} (supported: #{selected_p['banks'].join(', ')})"
+      norm_bank = SmartRouter::Operation.normalize_bank(bank)
+      if selected_p['banks'] && !selected_p['banks'].empty?
+        norm_supported = selected_p['banks'].map { |b| SmartRouter::Operation.normalize_bank(b) }
+        unless norm_supported.include?(norm_bank) || selected_p['banks'].map(&:downcase).include?(bank)
+          errors << "#{prefix} Bank '#{bank}' is not supported by #{dec['selected_provider']} (supported: #{selected_p['banks'].join(', ')})"
+        end
       end
-      if selected_p['exclude_banks'] && selected_p['exclude_banks'].map(&:downcase).include?(bank)
-        errors << "#{prefix} Bank '#{bank}' is in exclude_banks for #{dec['selected_provider']}"
+      if selected_p['exclude_banks'].is_a?(Array)
+        norm_excluded = selected_p['exclude_banks'].map { |b| SmartRouter::Operation.normalize_bank(b) }
+        if norm_excluded.include?(norm_bank) || selected_p['exclude_banks'].map(&:downcase).include?(bank)
+          errors << "#{prefix} Bank '#{bank}' is in exclude_banks for #{dec['selected_provider']}"
+        end
       end
 
       # Check margin

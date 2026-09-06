@@ -83,12 +83,12 @@ module SmartRouter
       end
 
       # 7. Bank exclusion blacklist
-      if provider.exclude_banks.include?(bank)
+      if provider.excludes_bank?(bank)
         return [false, 'bank_excluded', "bank '#{bank}' is explicitly excluded"]
       end
 
       # 8. Bank support whitelist
-      if !provider.banks.empty? && !provider.banks.include?(bank)
+      if !provider.supports_bank?(bank)
         return [false, 'bank_not_in_list', "bank '#{bank}' not in allowed list"]
       end
 

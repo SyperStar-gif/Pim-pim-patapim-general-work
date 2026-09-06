@@ -27,10 +27,10 @@ module SmartRouter
         score = volume_share_component(provider, context)
         { score: score, primary_factor: 'volume_share_deficit', details: "Volume share deficit: #{score.round(2)}" }
 
-      when 'cascade_priority'
+      when 'cascade_priority', 'priority', 'first_eligible'
         # Lower priority number = higher score
         score = (100 - (provider.priority * 10)).to_f
-        { score: score, primary_factor: 'cascade_priority', details: "Cascade priority: #{provider.priority}" }
+        { score: score, primary_factor: 'first_eligible', details: "Cascade priority: #{provider.priority}" }
 
       when 'amount_tier'
         score = amount_tier_component(provider, operation)

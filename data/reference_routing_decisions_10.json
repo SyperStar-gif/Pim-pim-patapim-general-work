@@ -1,10 +1,10 @@
 [
   {
     "operation_id": "op_101",
-    "selected_provider": "payflow",
+    "selected_provider": "vipay",
     "attempts": [
       {
-        "provider": "payflow",
+        "provider": "vipay",
         "decision": "selected",
         "reason": "first_eligible"
       }
@@ -14,7 +14,7 @@
   },
   {
     "operation_id": "op_102",
-    "selected_provider": "quickpay",
+    "selected_provider": "payflow",
     "attempts": [
       {
         "provider": "vipay",
@@ -23,17 +23,12 @@
       },
       {
         "provider": "payflow",
-        "decision": "skipped",
-        "reason": "bank_not_in_list"
-      },
-      {
-        "provider": "quickpay",
         "decision": "selected",
-        "reason": "only_eligible_provider"
+        "reason": "first_eligible"
       }
     ],
     "simulated_result": "approved",
-    "latency_sec": 29
+    "latency_sec": 30
   },
   {
     "operation_id": "op_103",
@@ -56,7 +51,7 @@
       }
     ],
     "simulated_result": "approved",
-    "latency_sec": 29
+    "latency_sec": 30
   },
   {
     "operation_id": "op_104",
@@ -79,28 +74,10 @@
       }
     ],
     "simulated_result": "approved",
-    "latency_sec": 29
-  },
-  {
-    "operation_id": "op_105",
-    "selected_provider": "vipay",
-    "attempts": [
-      {
-        "provider": "vipay",
-        "decision": "selected",
-        "reason": "first_eligible"
-      },
-      {
-        "provider": "payflow",
-        "decision": "skipped",
-        "reason": "amount_exceeds_limit"
-      }
-    ],
-    "simulated_result": "approved",
     "latency_sec": 30
   },
   {
-    "operation_id": "op_106",
+    "operation_id": "op_105",
     "selected_provider": "vipay",
     "attempts": [
       {
@@ -118,48 +95,7 @@
     "latency_sec": 30
   },
   {
-    "operation_id": "op_107",
-    "selected_provider": "spacepayments",
-    "attempts": [
-      {
-        "provider": "vipay",
-        "decision": "skipped",
-        "reason": "amount_exceeds_limit"
-      },
-      {
-        "provider": "payflow",
-        "decision": "skipped",
-        "reason": "amount_exceeds_limit"
-      },
-      {
-        "provider": "quickpay",
-        "decision": "skipped",
-        "reason": "amount_exceeds_limit"
-      },
-      {
-        "provider": "spacepayments",
-        "decision": "selected",
-        "reason": "fallback_all_providers_ineligible"
-      }
-    ],
-    "simulated_result": "approved",
-    "latency_sec": 15
-  },
-  {
-    "operation_id": "op_108",
-    "selected_provider": "payflow",
-    "attempts": [
-      {
-        "provider": "payflow",
-        "decision": "selected",
-        "reason": "first_eligible"
-      }
-    ],
-    "simulated_result": "approved",
-    "latency_sec": 30
-  },
-  {
-    "operation_id": "op_109",
+    "operation_id": "op_106",
     "selected_provider": "vipay",
     "attempts": [
       {
@@ -177,31 +113,85 @@
     "latency_sec": 30
   },
   {
-    "operation_id": "op_110",
-    "selected_provider": "spacepayments",
+    "operation_id": "op_107",
+    "selected_provider": "payflow",
     "attempts": [
       {
         "provider": "vipay",
         "decision": "skipped",
-        "reason": "amount_exceeds_limit"
+        "reason": "amount_below_minimum"
       },
       {
         "provider": "payflow",
-        "decision": "skipped",
-        "reason": "amount_exceeds_limit"
+        "decision": "selected",
+        "reason": "only_eligible_provider"
       },
       {
         "provider": "quickpay",
         "decision": "skipped",
-        "reason": "amount_exceeds_limit"
-      },
-      {
-        "provider": "spacepayments",
-        "decision": "selected",
-        "reason": "fallback_all_providers_ineligible"
+        "reason": "amount_below_minimum"
       }
     ],
     "simulated_result": "approved",
-    "latency_sec": 15
+    "latency_sec": 30
+  },
+  {
+    "operation_id": "op_108",
+    "selected_provider": "quickpay",
+    "attempts": [
+      {
+        "provider": "vipay",
+        "decision": "skipped",
+        "reason": "bank_not_in_list"
+      },
+      {
+        "provider": "payflow",
+        "decision": "skipped",
+        "reason": "bank_not_in_list"
+      },
+      {
+        "provider": "quickpay",
+        "decision": "selected",
+        "reason": "only_eligible_provider"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 30
+  },
+  {
+    "operation_id": "op_109",
+    "selected_provider": "vipay",
+    "attempts": [
+      {
+        "provider": "vipay",
+        "decision": "selected",
+        "reason": "first_eligible"
+      },
+      {
+        "provider": "payflow",
+        "decision": "skipped",
+        "reason": "bank_not_in_list"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 30
+  },
+  {
+    "operation_id": "op_110",
+    "selected_provider": "payflow",
+    "attempts": [
+      {
+        "provider": "vipay",
+        "decision": "skipped",
+        "reason": "bank_not_in_list"
+      },
+      {
+        "provider": "payflow",
+        "decision": "selected",
+        "reason": "first_eligible"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 30
   }
 ]
