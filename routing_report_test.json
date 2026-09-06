@@ -1,49 +1,62 @@
 {
   "period": "2026-09-06",
-  "total_operations": 10,
+  "total_operations": 90,
   "distribution": {
     "vipay": {
-      "count": 3,
-      "share_pct": 30.0,
+      "count": 12,
+      "share_pct": 13.3,
       "target_pct": 40.0
     },
     "payflow": {
-      "count": 3,
-      "share_pct": 30.0,
+      "count": 5,
+      "share_pct": 5.6,
       "target_pct": 35.0
     },
     "quickpay": {
-      "count": 4,
-      "share_pct": 40.0,
+      "count": 20,
+      "share_pct": 22.2,
       "target_pct": 25.0
+    },
+    "spacepayments": {
+      "count": 53,
+      "share_pct": 58.9,
+      "target_pct": 0.0
     }
   },
   "skip_reasons": {
-    "bank_not_in_list": 8,
-    "amount_exceeds_limit": 3,
-    "amount_below_minimum": 2
+    "bank_not_in_list": 84,
+    "amount_exceeds_limit": 33,
+    "amount_below_minimum": 16,
+    "no_available_requisites": 83
   },
   "projected_daily_utilization": {
     "vipay": {
-      "used": 3287000,
+      "used": 3559000,
       "limit": 5000000,
-      "utilization_pct": 65.74
+      "utilization_pct": 71.18
     },
     "payflow": {
-      "used": 2955800,
+      "used": 2949700,
       "limit": 3000000,
-      "utilization_pct": 98.53
+      "utilization_pct": 98.32
     },
     "quickpay": {
-      "used": 1343000,
+      "used": 2397000,
       "limit": 8000000,
-      "utilization_pct": 16.79
+      "utilization_pct": 29.96
+    },
+    "spacepayments": {
+      "used": 1789800,
+      "limit": null,
+      "utilization_pct": 0.0
     }
   },
   "recommendations": [
-    "vipay достиг 65.74% дневного лимита — отслеживать интенсивность трафика",
-    "payflow близок к дневному лимиту (98.53%) — рекомендуется временно снизить traffic_percentage или запросить расширение дневного лимита",
-    "Высокая доля отклонений amount_exceeds_limit (3) — рекомендуется подключить провайдеров с чеками 100k+ или повысить лимит vipay",
+    "vipay достиг 71.18% дневного лимита — отслеживать интенсивность трафика",
+    "vipay отстает от целевой доли (13.3% против 40.0%) (причины: лимиты по сумме, банковские фильтры) — скорректировать фильтры или веса",
+    "payflow близок к дневному лимиту (98.32%) — рекомендуется временно снизить traffic_percentage или запросить расширение дневного лимита",
+    "payflow отстает от целевой доли (5.6% против 35.0%) (причины: лимиты по сумме, банковские фильтры) — скорректировать фильтры или веса",
+    "Высокая доля отклонений amount_exceeds_limit (33) — рекомендуется подключить провайдеров с чеками 100k+ или повысить лимит vipay",
     "Частые пропуски по банкам — пересмотреть exclude_banks для оптимизации покрытия платежных методов"
   ]
 }
