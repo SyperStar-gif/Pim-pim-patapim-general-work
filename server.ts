@@ -26,6 +26,34 @@ async function startServer() {
     return fallback;
   };
 
+  const normalizeProvidersToMap = (raw: any): Record<string, any> => {
+    if (!raw || typeof raw !== 'object') return {};
+    const map: Record<string, any> = {};
+    let list: any[] = [];
+    if (Array.isArray(raw)) {
+      list = raw;
+    } else if (raw.providers && Array.isArray(raw.providers)) {
+      list = raw.providers;
+    } else {
+      list = Object.entries(raw)
+        .filter(([k, v]) => v && typeof v === 'object' && !['snapshot_at', 'gateway', 'merchant', 'providers'].includes(k))
+        .map(([k, v]: any) => ({ ...v, payment_system: v.payment_system || k }));
+    }
+    list.forEach((p: any) => {
+      if (!p || typeof p !== 'object') return;
+      const id = (p.payment_system || p.id || p.name || '').toString().toLowerCase();
+      if (!id) return;
+      map[id] = {
+        ...p,
+        payment_system: id,
+        name: p.name || id.toUpperCase(),
+        banks: Array.isArray(p.banks) ? p.banks : [],
+        exclude_banks: Array.isArray(p.exclude_banks) ? p.exclude_banks : []
+      };
+    });
+    return map;
+  };
+
   // API 1: Health check
   app.get('/api/health', (req, res) => {
     res.json({
@@ -38,7 +66,8 @@ async function startServer() {
   // API 2: Get all datasets and current results
   app.get('/api/data', (req, res) => {
     try {
-      const providers = readJsonSafe(path.join(__dirname, 'data/providers.json'), {});
+      const rawProviders = readJsonSafe(path.join(__dirname, 'data/providers.json'), {});
+      const providers = normalizeProvidersToMap(rawProviders);
       const queue = readJsonSafe(path.join(__dirname, 'operations_queue_test.json'), readJsonSafe(path.join(__dirname, 'data/operations_queue.json'), []));
       const decisions = readJsonSafe(path.join(__dirname, 'routing_decisions_test.json'), readJsonSafe(path.join(__dirname, 'data/sample_routing_decisions.json'), []));
       const report = readJsonSafe(path.join(__dirname, 'routing_report_test.json'), {});
@@ -73,7 +102,8 @@ async function startServer() {
     exec(cmd, { cwd: __dirname }, (error, stdout, stderr) => {
       const decisions = readJsonSafe(path.join(__dirname, 'routing_decisions_test.json'), []);
       const report = readJsonSafe(path.join(__dirname, 'routing_report_test.json'), {});
-      const providers = readJsonSafe(path.join(__dirname, 'data/providers.json'), {});
+      const rawProviders = readJsonSafe(path.join(__dirname, 'data/providers.json'), {});
+      const providers = normalizeProvidersToMap(rawProviders);
 
       res.json({
         success: !error,
@@ -183,7 +213,8 @@ async function startServer() {
       exec(cmd, { cwd: __dirname }, (err, stdout, stderr) => {
         const decisions = readJsonSafe(path.join(__dirname, 'routing_decisions_test.json'), []);
         const report = readJsonSafe(path.join(__dirname, 'routing_report_test.json'), {});
-        const providers = readJsonSafe(path.join(__dirname, 'data/providers.json'), {});
+        const rawProviders = readJsonSafe(path.join(__dirname, 'data/providers.json'), {});
+        const providers = normalizeProvidersToMap(rawProviders);
 
         res.json({
           success: !err,

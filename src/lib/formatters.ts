@@ -289,3 +289,59 @@ export const BANK_LABELS: Record<string, { name: string; color: string }> = {
   yoo_money: { name: 'ЮMoney', color: 'bg-purple-100 text-purple-800' },
   sbp: { name: 'СБП', color: 'bg-teal-100 text-teal-800' }
 };
+
+import type { ProvidersMap, Provider } from '../types';
+
+export function normalizeProvidersMap(raw: any): ProvidersMap {
+  if (!raw || typeof raw !== 'object') return {};
+
+  const map: ProvidersMap = {};
+  let list: any[] = [];
+
+  if (Array.isArray(raw)) {
+    list = raw;
+  } else if (raw.providers && Array.isArray(raw.providers)) {
+    list = raw.providers;
+  } else {
+    list = Object.entries(raw)
+      .filter(([key, val]) => val && typeof val === 'object' && !['snapshot_at', 'gateway', 'merchant'].includes(key))
+      .map(([key, val]: any) => ({ ...val, payment_system: val.payment_system || key }));
+  }
+
+  list.forEach((p: any) => {
+    if (!p || typeof p !== 'object') return;
+    const id = (p.payment_system || p.id || p.name || '').toString().toLowerCase();
+    if (!id) return;
+
+    map[id] = {
+      name: p.name || (p.payment_system ? p.payment_system.toUpperCase() : id.toUpperCase()),
+      status: p.status === 'inactive' || p.status === 'maintenance' ? p.status : 'active',
+      traffic_percentage: Number(p.traffic_percentage) || 0,
+      volume_share_pct: Number(p.volume_share_pct ?? p.traffic_percentage) || 0,
+      priority: Number(p.priority) || 1,
+      limit_amount_min: p.limit_amount_min != null ? Number(p.limit_amount_min) : 0,
+      limit_amount_max: p.limit_amount_max != null ? Number(p.limit_amount_max) : 1000000000,
+      daily_amount_limit: p.daily_amount_limit != null ? Number(p.daily_amount_limit) : 0,
+      daily_approved_amount: Number(p.daily_approved_amount) || 0,
+      in_progress_count_limit: p.in_progress_count_limit != null ? Number(p.in_progress_count_limit) : 0,
+      in_progress_count: Number(p.in_progress_count) || 0,
+      in_progress_amount_limit: p.in_progress_amount_limit != null ? Number(p.in_progress_amount_limit) : 0,
+      in_progress_amount: Number(p.in_progress_amount) || 0,
+      available_requisites: Number(p.available_requisites) || 0,
+      banks: Array.isArray(p.banks) ? p.banks : [],
+      exclude_banks: Array.isArray(p.exclude_banks) ? p.exclude_banks : [],
+      conversion_24h: Number(p.conversion_24h) || 0,
+      provider_margin_pct: Number(p.provider_margin_pct) || 0,
+      merchant_margin_pct: Number(p.merchant_margin_pct) || 0,
+      requests_per_minute_limit: Number(p.requests_per_minute_limit) || 60,
+      daily_turnover_min: Number(p.daily_turnover_min) || 0,
+      daily_turnover_max: Number(p.daily_turnover_max) || 0,
+      avg_latency_sec: Number(p.avg_latency_sec) || 0,
+      allow_negative_agreement: Boolean(p.allow_negative_agreement),
+      is_fallback: Boolean(p.is_fallback || p.traffic_percentage === 0 || id === 'spacepayments')
+    };
+  });
+
+  return map;
+}
+

@@ -76,7 +76,7 @@ export function AnalyticsDashboard({ report }: AnalyticsDashboardProps) {
           <span className="text-xs text-slate-500 block">Выработка рекомендаций</span>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-2xl font-bold text-indigo-600">
-              {report.recommendations?.length || 0}
+              {Array.isArray(report.recommendations) ? report.recommendations.length : 0}
             </span>
             <span className="text-xs text-indigo-600 font-medium">активных инсайта</span>
           </div>
@@ -238,7 +238,7 @@ export function AnalyticsDashboard({ report }: AnalyticsDashboardProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          {report.recommendations && report.recommendations.length > 0 ? (
+          {Array.isArray(report.recommendations) && report.recommendations.length > 0 ? (
             report.recommendations.map((rec, idx) => (
               <div
                 key={idx}

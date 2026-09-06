@@ -21,6 +21,7 @@ export function SimulationSandbox({ providers, onAddOperationToQueue }: Simulati
     const amountBig = toBig(amount);
 
     Object.entries(providers).forEach(([id, p]) => {
+      if (!p || typeof p !== 'object' || ['snapshot_at', 'gateway', 'merchant', 'providers'].includes(id)) return;
       if (p.is_fallback) return;
 
       // 1. Status
@@ -60,12 +61,14 @@ export function SimulationSandbox({ providers, onAddOperationToQueue }: Simulati
         return;
       }
       // 5. Bank excluded
-      if (p.exclude_banks && p.exclude_banks.includes(bank)) {
+      const excludeBanks = Array.isArray(p.exclude_banks) ? p.exclude_banks : [];
+      if (excludeBanks.includes(bank)) {
         attempts.push({ id, eligible: false, reason: 'bank_excluded', details: `Банк '${bank}' в черном списке` });
         return;
       }
       // 6. Bank included
-      if (p.banks && p.banks.length > 0 && !p.banks.includes(bank)) {
+      const banks = Array.isArray(p.banks) ? p.banks : [];
+      if (banks.length > 0 && !banks.includes(bank)) {
         attempts.push({ id, eligible: false, reason: 'bank_not_in_list', details: `Банк '${bank}' не поддерживается` });
         return;
       }

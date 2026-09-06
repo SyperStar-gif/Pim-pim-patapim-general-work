@@ -9,7 +9,7 @@ import { ValidationModal } from './components/ValidationModal';
 import { ExportModal } from './components/ExportModal';
 import { ProvidersMap, Operation, RoutingDecision, RoutingReport, RoutingStrategy } from './types';
 import { Layers, BarChart3, Building2, Sparkles, MonitorPlay } from 'lucide-react';
-import { safeSum } from './lib/formatters';
+import { safeSum, normalizeProvidersMap } from './lib/formatters';
 import { PresentationDeck } from './components/PresentationDeck';
 
 export function App() {
@@ -34,9 +34,9 @@ export function App() {
       const res = await fetch('/api/data');
       if (res.ok) {
         const data = await res.json();
-        setProviders(data.providers || {});
-        setQueue(data.queue || []);
-        setDecisions(data.decisions || []);
+        setProviders(normalizeProvidersMap(data.providers || {}));
+        setQueue(Array.isArray(data.queue) ? data.queue : []);
+        setDecisions(Array.isArray(data.decisions) ? data.decisions : []);
         setReport(data.report || null);
       }
     } catch (err) {
@@ -60,9 +60,9 @@ export function App() {
       });
       const result = await res.json();
       if (result.success) {
-        setDecisions(result.decisions || []);
+        setDecisions(Array.isArray(result.decisions) ? result.decisions : []);
         setReport(result.report || null);
-        if (result.providers) setProviders(result.providers);
+        if (result.providers) setProviders(normalizeProvidersMap(result.providers));
       }
     } catch (err) {
       console.error('Routing execution error:', err);
@@ -179,10 +179,10 @@ export function App() {
       });
       const result = await res.json();
       if (result.success) {
-        setQueue(uploadedQueue);
-        setDecisions(result.decisions || []);
+        setQueue(Array.isArray(uploadedQueue) ? uploadedQueue : []);
+        setDecisions(Array.isArray(result.decisions) ? result.decisions : []);
         setReport(result.report || null);
-        if (result.providers) setProviders(result.providers);
+        if (result.providers) setProviders(normalizeProvidersMap(result.providers));
         setActiveTab('waterfall');
       } else {
         alert(`Ошибка загрузки очереди: ${result.error || 'Неизвестная ошибка'}`);
@@ -193,6 +193,10 @@ export function App() {
       setIsRunning(false);
     }
   };
+
+  const validProvidersCount = Object.keys(providers || {}).filter(
+    (k) => !['snapshot_at', 'gateway', 'merchant', 'providers'].includes(k)
+  ).length;
 
   return (
     <div className="min-h-screen bg-slate-50/70 text-slate-900 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900">
@@ -205,8 +209,8 @@ export function App() {
         isRunning={isRunning}
         isValidating={isValidating}
         isRunningTests={isRunningTests}
-        totalOperations={queue.length}
-        totalVolume={safeSum(queue.map(op => op.amount))}
+        totalOperations={(queue || []).length}
+        totalVolume={safeSum((queue || []).map(op => op.amount))}
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-6 flex-1">
@@ -229,7 +233,7 @@ export function App() {
               }`}
             >
               <Layers className="w-4 h-4" />
-              <span>Waterfall решений ({decisions.length})</span>
+              <span>Waterfall решений ({(decisions || []).length})</span>
             </button>
 
             <button
@@ -255,7 +259,7 @@ export function App() {
               }`}
             >
               <Building2 className="w-4 h-4" />
-              <span>Провайдеры ({Object.keys(providers).length})</span>
+              <span>Провайдеры ({validProvidersCount})</span>
             </button>
 
             <button

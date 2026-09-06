@@ -92,11 +92,13 @@ module SmartRouter
           eligible_candidates << provider
         else
           norm_reason = (reason == 'amount_below_min') ? 'amount_below_minimum' : reason
-          skipped_attempts[provider.id] = {
+          att_data = {
             'provider' => provider.id,
             'decision' => 'skipped',
             'reason' => norm_reason
           }
+          att_data['details'] = details if details && !details.to_s.strip.empty?
+          skipped_attempts[provider.id] = att_data
         end
       end
 

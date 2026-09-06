@@ -31,6 +31,10 @@ export function ProvidersFleet({ providers, onUpdateProvider }: ProvidersFleetPr
     setEditingId(null);
   };
 
+  const validProviders = Object.entries(providers).filter(
+    ([id, p]) => p && typeof p === 'object' && !['snapshot_at', 'gateway', 'merchant', 'providers'].includes(id)
+  );
+
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
@@ -38,7 +42,7 @@ export function ProvidersFleet({ providers, onUpdateProvider }: ProvidersFleetPr
           <Building2 className="w-4 h-4 text-indigo-600" />
           <h2 className="text-sm font-bold text-slate-900">Платёжные партнеры и состояние шлюзов</h2>
           <span className="text-xs text-slate-500">
-            ({Object.keys(providers).length} провайдера)
+            ({validProviders.length} провайдера)
           </span>
         </div>
         <span className="text-xs text-slate-500">
@@ -47,10 +51,12 @@ export function ProvidersFleet({ providers, onUpdateProvider }: ProvidersFleetPr
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3.5">
-        {Object.entries(providers).map(([id, p]) => {
+        {validProviders.map(([id, p]) => {
           const utilPct = p.daily_amount_limit > 0 ? (p.daily_approved_amount / p.daily_amount_limit) * 100 : 0;
           const isFallback = p.is_fallback;
           const isEditing = editingId === id;
+          const banks = Array.isArray(p.banks) ? p.banks : [];
+          const excludeBanks = Array.isArray(p.exclude_banks) ? p.exclude_banks : [];
 
           return (
             <div
@@ -261,10 +267,10 @@ export function ProvidersFleet({ providers, onUpdateProvider }: ProvidersFleetPr
                     <div className="mt-3 pt-2.5 border-t border-slate-100">
                       <span className="text-[10px] text-slate-600 block mb-1 font-medium">Банки:</span>
                       <div className="flex flex-wrap gap-1">
-                        {p.banks.length === 0 ? (
+                        {banks.length === 0 ? (
                           <span className="text-[10px] text-slate-500 italic">Все доступные банки</span>
                         ) : (
-                          p.banks.map((b) => (
+                          banks.map((b) => (
                             <span
                               key={b}
                               className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${
@@ -275,7 +281,7 @@ export function ProvidersFleet({ providers, onUpdateProvider }: ProvidersFleetPr
                             </span>
                           ))
                         )}
-                        {p.exclude_banks.map((b) => (
+                        {excludeBanks.map((b) => (
                           <span
                             key={b}
                             className="text-[9px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 line-through"

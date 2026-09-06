@@ -66,7 +66,7 @@ export function ExportModal({ isOpen, onClose, decisions, report }: ExportModalP
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
-              routing_decisions_test.json ({decisions.length})
+              routing_decisions_test.json ({Array.isArray(decisions) ? decisions.length : 0})
             </button>
             <button
               onClick={() => setActiveTab('report')}

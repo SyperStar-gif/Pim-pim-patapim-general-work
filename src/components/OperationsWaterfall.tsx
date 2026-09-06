@@ -10,13 +10,18 @@ interface OperationsWaterfallProps {
 }
 
 export function OperationsWaterfall({ operations, decisions }: OperationsWaterfallProps) {
-  const [expandedOpId, setExpandedOpId] = useState<string | null>(operations[0]?.operation_id || null);
+  const [expandedOpId, setExpandedOpId] = useState<string | null>(null);
   const [filterProvider, setFilterProvider] = useState<string>('all');
 
-  const decisionsMap = new Map<string, RoutingDecision>();
-  decisions.forEach((d) => decisionsMap.set(d.operation_id, d));
+  const safeOperations = Array.isArray(operations) ? operations : [];
+  const safeDecisions = Array.isArray(decisions) ? decisions : [];
 
-  const filteredOperations = operations.filter((op) => {
+  const activeExpandedId = expandedOpId !== null ? expandedOpId : (safeOperations[0]?.operation_id || null);
+
+  const decisionsMap = new Map<string, RoutingDecision>();
+  safeDecisions.forEach((d) => decisionsMap.set(d.operation_id, d));
+
+  const filteredOperations = safeOperations.filter((op) => {
     if (filterProvider === 'all') return true;
     const dec = decisionsMap.get(op.operation_id);
     return dec?.selected_provider === filterProvider;
@@ -29,7 +34,7 @@ export function OperationsWaterfall({ operations, decisions }: OperationsWaterfa
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-bold text-slate-900">Очередь выплат и Waterfall-решения роутера</h2>
             <span className="px-2 py-0.5 text-xs font-semibold bg-indigo-50 text-indigo-700 rounded-full">
-              {filteredOperations.length} из {operations.length}
+              {filteredOperations.length} из {safeOperations.length}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -57,7 +62,7 @@ export function OperationsWaterfall({ operations, decisions }: OperationsWaterfa
       <div className="space-y-2.5">
         {filteredOperations.map((op) => {
           const dec = decisionsMap.get(op.operation_id);
-          const isExpanded = expandedOpId === op.operation_id;
+          const isExpanded = activeExpandedId === op.operation_id;
           const bankInfo = BANK_LABELS[op.bank] || { name: op.bank, color: 'bg-slate-100 text-slate-700' };
 
           return (
@@ -72,7 +77,7 @@ export function OperationsWaterfall({ operations, decisions }: OperationsWaterfa
             >
               {/* Header row */}
               <div
-                onClick={() => setExpandedOpId(isExpanded ? null : op.operation_id)}
+                onClick={() => setExpandedOpId(isExpanded ? '__none__' : op.operation_id)}
                 className="p-3.5 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-3"
               >
                 <div className="flex items-center gap-3">
@@ -139,7 +144,7 @@ export function OperationsWaterfall({ operations, decisions }: OperationsWaterfa
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                      Последовательность попыток роутера ({dec.attempts.length}):
+                      Последовательность попыток роутера ({(dec.attempts || []).length}):
                     </span>
                     <span className="text-xs text-slate-500 font-mono">
                       Итог: {dec.simulated_result} • {dec.latency_sec} сек
@@ -147,7 +152,7 @@ export function OperationsWaterfall({ operations, decisions }: OperationsWaterfa
                   </div>
 
                   <div className="space-y-2">
-                    {dec.attempts.map((att, idx) => {
+                    {(dec.attempts || []).map((att, idx) => {
                       const isSelected = att.decision === 'selected';
                       const reasonMeta = REASON_TRANSLATIONS[att.reason] || {
                         label: att.reason,

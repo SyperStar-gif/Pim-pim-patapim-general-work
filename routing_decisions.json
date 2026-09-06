@@ -19,17 +19,13 @@
       {
         "provider": "vipay",
         "decision": "skipped",
-        "reason": "bank_not_in_list"
-      },
-      {
-        "provider": "payflow",
-        "decision": "skipped",
-        "reason": "bank_not_in_list"
+        "reason": "bank_not_in_list",
+        "details": "bank 'alfa' not in allowed list"
       },
       {
         "provider": "quickpay",
         "decision": "selected",
-        "reason": "only_eligible_provider"
+        "reason": "first_eligible"
       }
     ],
     "simulated_result": "approved",
@@ -42,12 +38,14 @@
       {
         "provider": "vipay",
         "decision": "skipped",
-        "reason": "amount_exceeds_limit"
+        "reason": "amount_exceeds_limit",
+        "details": "150000 > limit_amount_max 100000"
       },
       {
         "provider": "payflow",
         "decision": "skipped",
-        "reason": "amount_exceeds_limit"
+        "reason": "amount_exceeds_limit",
+        "details": "150000 > limit_amount_max 50000"
       },
       {
         "provider": "quickpay",
@@ -65,12 +63,14 @@
       {
         "provider": "vipay",
         "decision": "skipped",
-        "reason": "bank_not_in_list"
+        "reason": "bank_not_in_list",
+        "details": "bank 'gazprombank' not in allowed list"
       },
       {
         "provider": "payflow",
         "decision": "skipped",
-        "reason": "bank_not_in_list"
+        "reason": "bank_not_in_list",
+        "details": "bank 'gazprombank' not in allowed list"
       },
       {
         "provider": "quickpay",
@@ -93,7 +93,8 @@
       {
         "provider": "payflow",
         "decision": "skipped",
-        "reason": "amount_exceeds_limit"
+        "reason": "bank_not_in_list",
+        "details": "bank 'tbank' not in allowed list"
       }
     ],
     "simulated_result": "approved",
@@ -111,7 +112,8 @@
       {
         "provider": "payflow",
         "decision": "skipped",
-        "reason": "bank_not_in_list"
+        "reason": "amount_exceeds_limit",
+        "details": "52000 > limit_amount_max 50000"
       }
     ],
     "simulated_result": "approved",
@@ -119,44 +121,53 @@
   },
   {
     "operation_id": "op_107",
-    "selected_provider": "spacepayments",
+    "selected_provider": "payflow",
     "attempts": [
       {
         "provider": "vipay",
         "decision": "skipped",
-        "reason": "amount_exceeds_limit"
+        "reason": "amount_below_minimum",
+        "details": "800 < limit_amount_min 1000"
       },
       {
         "provider": "payflow",
-        "decision": "skipped",
-        "reason": "amount_exceeds_limit"
+        "decision": "selected",
+        "reason": "only_eligible_provider"
       },
       {
         "provider": "quickpay",
         "decision": "skipped",
-        "reason": "amount_exceeds_limit"
-      },
-      {
-        "provider": "spacepayments",
-        "decision": "selected",
-        "reason": "fallback_all_providers_ineligible"
-      }
-    ],
-    "simulated_result": "approved",
-    "latency_sec": 15
-  },
-  {
-    "operation_id": "op_108",
-    "selected_provider": "payflow",
-    "attempts": [
-      {
-        "provider": "payflow",
-        "decision": "selected",
-        "reason": "first_eligible"
+        "reason": "amount_below_minimum",
+        "details": "800 < limit_amount_min 1000"
       }
     ],
     "simulated_result": "approved",
     "latency_sec": 30
+  },
+  {
+    "operation_id": "op_108",
+    "selected_provider": "quickpay",
+    "attempts": [
+      {
+        "provider": "vipay",
+        "decision": "skipped",
+        "reason": "bank_not_in_list",
+        "details": "bank 'raiffeisen' not in allowed list"
+      },
+      {
+        "provider": "payflow",
+        "decision": "skipped",
+        "reason": "bank_not_in_list",
+        "details": "bank 'raiffeisen' not in allowed list"
+      },
+      {
+        "provider": "quickpay",
+        "decision": "selected",
+        "reason": "only_eligible_provider"
+      }
+    ],
+    "simulated_result": "approved",
+    "latency_sec": 29
   },
   {
     "operation_id": "op_109",
@@ -170,7 +181,8 @@
       {
         "provider": "payflow",
         "decision": "skipped",
-        "reason": "amount_exceeds_limit"
+        "reason": "bank_not_in_list",
+        "details": "bank 'vtb' not in allowed list"
       }
     ],
     "simulated_result": "approved",
@@ -178,30 +190,21 @@
   },
   {
     "operation_id": "op_110",
-    "selected_provider": "spacepayments",
+    "selected_provider": "payflow",
     "attempts": [
       {
         "provider": "vipay",
         "decision": "skipped",
-        "reason": "amount_exceeds_limit"
+        "reason": "bank_not_in_list",
+        "details": "bank 'alfa' not in allowed list"
       },
       {
         "provider": "payflow",
-        "decision": "skipped",
-        "reason": "amount_exceeds_limit"
-      },
-      {
-        "provider": "quickpay",
-        "decision": "skipped",
-        "reason": "amount_exceeds_limit"
-      },
-      {
-        "provider": "spacepayments",
         "decision": "selected",
-        "reason": "fallback_all_providers_ineligible"
+        "reason": "first_eligible"
       }
     ],
     "simulated_result": "approved",
-    "latency_sec": 15
+    "latency_sec": 30
   }
 ]
