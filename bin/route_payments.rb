@@ -19,7 +19,7 @@ OptionParser.new do |opts|
   opts.on('-q', '--queue FILE', 'Path to operations queue JSON') { |v| options[:queue] = v }
   opts.on('-p', '--providers FILE', 'Path to providers JSON') { |v| options[:providers] = v }
   opts.on('-s', '--strategy STRATEGY', 'Routing strategy (combined, traffic_share, volume_share, cascade_priority, amount_tier, conversion_boost, rate_limit_intensity, financial_obligations)') { |v| options[:strategy] = v }
-  opts.on('-o', '--output FILE', 'Path to output decisions JSON') { |v| options[:output] = v }
+  opts.on('-o', '-d', '--output FILE', '--decisions FILE', 'Path to output decisions JSON') { |v| options[:output] = v }
   opts.on('-r', '--report FILE', 'Path to output report JSON') { |v| options[:report] = v }
   opts.on('--seed INT', Integer, 'Deterministic random seed') { |v| options[:seed] = v }
 end.parse!
